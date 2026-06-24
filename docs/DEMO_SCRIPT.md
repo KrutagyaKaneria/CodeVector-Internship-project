@@ -63,3 +63,23 @@ This script outlines a structured demo demonstrating the advantages, correctness
 * **Key Observations**:
   * Point out the query uses `Index Scan using idx_products_created_id`.
   * Highlight the **Planning Time** (~1.5ms) and **Execution Time** (<1ms), proving that the database does not perform costly sequential table scans or sorting operations.
+
+---
+
+### Step 5: Visual Browser Demo (Bonus) (Time: 1:30 min)
+* **Goal**: Visually demonstrate real-time keyset stability and live mutation safety.
+* **Action**:
+  1. Open [http://localhost:3000/](http://localhost:3000/) in a browser.
+  2. Select the `Electronics` category from the dropdown to load the initial list.
+  3. Click **Load More** twice to load the first few pages. Keep note of the topmost item.
+  4. In the **Admin Operations** sidebar, submit a new product:
+     - **Name**: `Live Demo Gadget`
+     - **Category**: `Electronics`
+     - **Price**: `199.99`
+  5. Check the **Debug Console**: note the successful `POST /api/products` request log.
+  6. Click **Load More** to continue paginating.
+  7. **Observation**: The newly inserted product (sorted at the top because it has the newest timestamp) **does not appear** in subsequent pages, and no pre-existing items are skipped.
+  8. Copy the **ID** of any visible product from the browser list.
+  9. In the **Admin Operations** sidebar under **Update Product Price**, enter the ID and a new price (e.g. `250.00`). Submit the PATCH request.
+  10. **Observation**: The updated card flashes green and displays the new price. Continue clicking **Load More**. Since the sort attributes `(created_at, id)` are untouched, the product **remains in its exact position** with **zero duplicates or gaps**.
+
