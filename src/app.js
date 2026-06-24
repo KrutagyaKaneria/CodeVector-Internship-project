@@ -1,5 +1,7 @@
 import express from 'express';
 import pool from './config/db.js';
+import productRoutes from './routes/products.js';
+import { errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
 
@@ -21,5 +23,9 @@ app.get('/health', async (req, res) => {
     });
   }
 });
+
+app.use('/api', productRoutes);
+
+app.use(errorHandler);
 
 export default app;
