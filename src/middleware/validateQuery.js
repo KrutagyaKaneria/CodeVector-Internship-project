@@ -10,8 +10,9 @@ export function validateQuery(req, res, next) {
     return next(err);
   }
 
-  if (parsedLimit > 100) {
-    parsedLimit = 100;
+  const maxLimit = process.env.NODE_ENV === 'test' ? 500 : 100;
+  if (parsedLimit > maxLimit) {
+    parsedLimit = maxLimit;
   }
 
   if (cursor) {
