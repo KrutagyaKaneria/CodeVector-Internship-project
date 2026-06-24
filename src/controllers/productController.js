@@ -48,3 +48,59 @@ export async function getProductById(req, res, next) {
     next(error);
   }
 }
+
+export async function createProduct(req, res, next) {
+  try {
+    const { name, category, price } = req.validatedBody;
+    const { rows } = await pool.query(
+      'INSERT INTO products (name, category, price) VALUES ($1, $2, $3) RETURNING *',
+      [name, category, price]
+    );
+    res.status(201).json(rows[0]);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function updateProduct(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    if (isNaN(parseInt(id, 10)) || parseInt(id, 10) <= 0) {
+      const err = new Error('Product not found');
+      err.status = 404;
+      return next(err);
+    }
+
+    const updates = [];
+    const values = [];
+    const fields = req.validatedBody;
+
+    for (const [key, val] of Object.entries(fields)) {
+      values.push(val);
+      updates.push(`${key} = $${values.length}`);
+    }
+
+    values.push(id);
+    const idParam = `$${values.length}`;
+
+    const query = `
+      UPDATE products
+      SET ${updates.join(', ')}
+      WHERE id = ${idParam}
+      RETURNING *
+    `;
+
+    const { rows } = await pool.query(query, values);
+
+    if (rows.length === 0) {
+      const err = new Error('Product not found');
+      err.status = 404;
+      return next(err);
+    }
+
+    res.status(200).json(rows[0]);
+  } catch (error) {
+    next(error);
+  }
+}
